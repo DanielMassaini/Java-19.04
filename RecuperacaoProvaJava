@@ -1,0 +1,86 @@
+import java.sql.*;
+
+public class Main {
+    // Configurações do banco de dados
+    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    static final String DB_URL = "jdbc:mysql://localhost:3306/meu_banco_de_dados";
+    static final String USER = "seu_usuario";
+    static final String PASS = "sua_senha";
+
+    public static void main(String[] args) {
+        Connection conn = null;
+        Statement statement = null;
+        try {
+            // Registrando o driver JDBC
+            Class.forName(JDBC_DRIVER);
+
+            // Estabelecendo a conexão com o banco de dados
+            System.out.println("Conectando ao banco de dados...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
+
+            // Criando uma instrução SQL
+            statement = conn.createStatement();
+
+            // Criando a tabela se ela não existir
+            String createTableSql = "CREATE TABLE IF NOT EXISTS ALUNO (" +
+                    "Matricula VARCHAR(11) PRIMARY KEY," +
+                    "Nome VARCHAR(100)," +
+                    "DataNascimento DATE," +
+                    "Nacionalidade VARCHAR(50))";
+            statement.executeUpdate(createTableSql);
+
+            // Inserindo um registro na tabela
+            String insertSql = "INSERT INTO ALUNO (Matricula, Nome, DataNascimento, Nacionalidade) " +
+                    "VALUES ('12345678900', 'Fulano', '1990-01-01', 'Brasileira')";
+            statement.executeUpdate(insertSql);
+            System.out.println("Registro inserido com êxito!");
+
+            // Atualizando um registro na tabela
+            String updateSql = "UPDATE ALUNO SET Nome = 'Novo Nome' WHERE Matricula = '12345678900'";
+            statement.executeUpdate(updateSql);
+            System.out.println("Registro atualizado com êxito!");
+
+            // Excluindo um registro na tabela
+            String deleteSql = "DELETE FROM ALUNO WHERE Matricula = '12345678900'";
+            statement.executeUpdate(deleteSql);
+            System.out.println("Registro excluído com êxito!");
+
+            // Consultando registros da tabela
+            String selectSql = "SELECT * FROM ALUNO";
+            ResultSet rs = statement.executeQuery(selectSql);
+
+            // Exibindo os resultados da consulta
+            while (rs.next()) {
+                String matricula = rs.getString("Matricula");
+                String nome = rs.getString("Nome");
+                Date dataNascimento = rs.getDate("DataNascimento");
+                String nacionalidade = rs.getString("Nacionalidade");
+
+                System.out.println("Matrícula: " + matricula + ", Nome: " + nome + ", Data de Nascimento: " + dataNascimento + ", Nacionalidade: " + nacionalidade);
+            }
+
+            // Fechando os recursos
+            rs.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException se) {
+            // Lidando com erros de SQL
+            se.printStackTrace();
+        } catch (Exception e) {
+            // Lidando com outros erros
+            e.printStackTrace();
+        } finally {
+            // Fechando os recursos no final
+            try {
+                if (statement != null) statement.close();
+            } catch (SQLException se2) {
+            }
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+        System.out.println("Fim da execução.");
+    }
+}
